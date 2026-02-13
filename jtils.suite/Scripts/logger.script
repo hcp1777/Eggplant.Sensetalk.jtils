@@ -1,0 +1,72 @@
+﻿# Sets the execution logging level during code execution. 
+# This controls how much information is recorded to the log files, impacting both verbosity and performance.
+#
+#
+#  Parameter:
+#
+#		level: accepts either a numeric code or a string alias
+#			0 or "silent"
+#			1 or "off"
+#			2 or "minimal"
+#			3 or "actions"
+#			4 or "on"
+#
+#
+#  Usage Syntax:
+#
+#		logger
+#		logger 1
+#		logger off
+#
+#
+#  Default behavior:
+#
+#		If no parameter is provided, or if the value is unrecognized, scriptLogging is set to "on". 
+# 
+#
+#  Behavior by Level
+#
+# 		0 / silent
+#			- Effect: scriptLogging = "silent"
+#			- Logs: nothing is recorded in the log file
+#			- Counters: warnings and errors are still counted (statistics updated)
+#
+#		1 / off
+#			- Effect: scriptLogging = "off"
+#			- Logs: only BeginTestCase, EndTestCase, Log, LogError, LogWarning, LogSuccess are recorded
+#
+#		2 / minimal
+#			- Effect: scriptLogging = "minimal"
+#			- Logs: only LogError, LogWarning, LogSuccess are recorded
+#
+#		3 / actions
+#			- Effect: scriptLogging = "actions"
+#			- Logs: all logging commands and all interactions with the SUT are recorded
+#			- Exclusions: global property changes are not recorded
+#
+#		4 / on
+#			- Effect: scriptLogging = "on"
+#			- Logs: all logging commands and all interactions with the SUT are recorded (max verbosity)
+#
+# 
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  logger.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+params level
+
+if level is contained by...
+	[0,silent]: set the scriptLogging to "silent"
+	[1,off]: set the scriptLogging to "off"
+	[2,minimal]: set the scriptLogging to "minimal"
+	[3,actions]: set the scriptLogging to "actions"
+	[4,on]: set the scriptLogging to "on"
+	else:
+		set the scriptLogging to "on"
+end if
+
+
+

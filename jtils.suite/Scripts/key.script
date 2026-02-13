@@ -1,0 +1,365 @@
+# Types predefined keystroke actions as well as keyboard shortcuts commonly used on a Windows operating system
+#
+#
+#  Parameter:
+#
+#		handler name:  call key.script with name of handler for that key press or key sequence
+#
+#
+#  Usage Syntax:
+#
+#		key.copy
+#		key.ctrlAltDel
+#
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  key.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+-----------------------------------------------------------------
+# keypresses
+-----------------------------------------------------------------
+
+to tab
+	typeText tabKey
+end tab
+
+to tabback
+	typeText shiftKey,tabKey
+end tabback
+
+to space
+	typeText space
+end space
+
+to returnKey
+	typeText returnKey
+end returnKey
+
+to backspace
+	typeText backspace
+end backspace
+
+to del
+	typeText deleteKey
+end del
+
+to escape
+	typeText escapeKey
+end escape
+
+to up
+	typeText upArrow
+end up
+
+to down
+	typeText downArrow
+end down
+
+to left
+	typeText leftArrow
+end left
+
+to right
+	typeText rightArrow
+end right
+
+to home
+	typeText homeKey
+end home
+
+to ender
+	typeText endKey
+end ender
+
+to pageUp
+	typeText pageUp
+end pageUp
+
+to pageDown
+	typeText pageDown
+end pageDown
+
+to winKey
+	typeText windowsKey
+end winKey
+
+
+-----------------------------------------------------------------
+# keyboard shortcuts
+-----------------------------------------------------------------
+
+to cut
+	typeText controlKey,x
+end cut
+
+to copy
+	typeText controlKey,c
+end copy
+
+to paste
+	typeText controlKey,v
+end paste
+
+to save
+	typeText controlKey,s
+end save
+
+to saveAs
+	typeText controlKey,shiftKey,s
+end saveAs
+
+to close
+	typeText altKey,f4
+end close
+
+to selectAll
+	typeText controlKey,a
+end selectAll
+
+to run
+	typeText windowsKey,r
+end run
+
+to minimize
+	typeText windowsKey,downArrow
+end minimize
+
+to minimizeAll
+	typeText windowsKey,m
+end minimizeAll
+
+to maximize
+	typeText windowsKey,upArrow
+end maximize
+
+to windowLeft
+	typeText windowsKey,leftArrow
+end windowLeft
+
+to windowRight
+	typeText windowsKey,rightArrow
+end windowRight
+
+to previousWindow
+	typeText altKey,tabKey
+end previousWindow
+
+to altTab
+	keyDown altKey
+	typeText tabKey
+end altTab
+
+to altTabQuit
+	keyUp altKey
+end altTabQuit
+
+to ctrlAltDel
+	typeText controlKey,altKey,deleteKey
+end ctrlAltDel
+
+to options
+	typeText shiftKey,f10
+end options
+
+
+-----------------------------------------------------------------
+# browser specific
+-----------------------------------------------------------------
+
+to addressBar
+	typeText controlKey,l
+end addressBar
+
+to refresh
+	typeText controlKey,f5
+end refresh
+
+to back
+	typeText altKey,leftArrow
+end back
+
+to forward
+	typeText altKey,rightArrow
+end forward
+
+to newTab
+	typeText controlKey,t
+end newTab
+
+to closeTab
+	typeText controlKey,w
+end closeTab
+
+to previousTab
+	typeText controlKey,shiftKey,tabKey
+end previousTab
+
+
+-----------------------------------------------------------------
+# alphabet
+-----------------------------------------------------------------
+
+to a
+	typeText a
+end a
+
+to b
+	typeText b
+end b
+
+to c
+	typeText c
+end c
+
+to d
+	typeText d
+end d
+
+to e
+	typeText e
+end e
+
+to f
+	typeText f
+end f
+
+to g
+	typeText g
+end g
+
+to h
+	typeText h
+end h
+
+to i
+	typeText i
+end i
+
+to j
+	typeText j
+end j
+
+to k
+	typeText k
+end k
+
+to l
+	typeText l
+end l
+
+to m
+	typeText m
+end m
+
+to n
+	typeText n
+end n
+
+to o
+	typeText o
+end o
+
+to p
+	typeText p
+end p
+
+to q
+	typeText q
+end q
+
+to r
+	typeText r
+end r
+
+to s
+	typeText s
+end s
+
+to t
+	typeText t
+end t
+
+to u
+	typeText u
+end u
+
+to v
+	typeText v
+end v
+
+to w
+	typeText w
+end w
+
+to x
+	typeText x
+end x
+
+to y
+	typeText y
+end y
+
+to z
+	typeText z
+end z
+
+
+-----------------------------------------------------------------
+# function keys
+-----------------------------------------------------------------
+
+to f1
+	typeText f1
+end f1
+
+to f2
+	typeText f2
+end f2
+
+to f3
+	typeText f3
+end f3
+
+to f4
+	typeText f4
+end f4
+
+to f5
+	typeText f5
+end f5
+
+to f6
+	typeText f6
+end f6
+
+to f7
+	typeText f7
+end f7
+
+to f8
+	typeText f8
+end f8
+
+to f9
+	typeText f9
+end f9
+
+to f10
+	typeText f10
+end f10
+
+to f11
+	typeText f11
+end f11
+
+to f12
+	typeText f12
+end f12
+
+
+

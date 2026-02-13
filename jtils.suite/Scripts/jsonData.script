@@ -1,0 +1,37 @@
+# Consumes a json file and returns JSONValue data blob to work off of from allocated memory
+# Assumes file is located within the resourcePath() of the Eggplant project, unless inResourcePath is set to "no"
+# Handles .json and .jsonc files
+#
+#
+#  Parameter:
+#
+#		(1) jsonFilePathName: json or jsonc file
+#		(2) inResourcePath: specify if not in the project's ResourcePath()
+#
+#
+#  Usage Syntax:
+#
+#		set testData to jsonData("test.json")
+#		set deletedRecordData to jsonData("deleted-records.jsonc")
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  jsonData.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+params jsonFilePathName, inResourcePath="yes"
+put ">> util/jsonData()"
+
+set inlineComments to pattern {{
+//[A-Za-z0-9 :;,.\-\*%#\?/!\(\)\{\}\[\]\\\|`~'\ ]*
+}}
+
+if inResourcePath is not "yes" then put file jsonFilePathName into jsonFile else put file resourcePath(jsonFilePathName) into jsonFile
+delete all inlineComments in jsonfile
+
+return JSONValue(jsonfile)
+
+

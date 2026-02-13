@@ -1,0 +1,246 @@
+﻿# Windows (operating system) specific handlers
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  win.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+to login
+	put ">> win/login()"
+	
+	if imageFound(pL("Legal Notice",c,9.99,144))
+		click item -1 of everyImageLocation(pL("OK","n/a",4.99,"considering case"))
+		waitUntil 119.99,"win/background/loginProgress",notFound,2.99,bll
+		waitUntil 29.99,"win/background/black",notFound,0.99,bll
+	end if
+	sr
+end login
+
+
+
+to logout
+	put ">> win/logout()"
+	
+	key.ctrlAltDel
+	waitUntil 29.99,"Task Manager",found
+	tripleclick("Sign out")
+end logout
+
+
+
+to restart
+	put ">> win/restart()"
+	
+	keys windowsKey&r,"shutdown -r -t 0",returnKey
+end restart
+
+
+
+to openApp name
+	# opens specified app by name
+	#
+	#	put openApp(notepad)
+	#
+	put ">> win/openApp()"
+	
+	repeat 3 times //hardening
+		key.run
+		if found("win/run",bl,4.99) then exit repeat
+	end repeat
+	sr
+	keys name,returnKey
+	if name does not contain "cmd" then cmds "wait 1.99","key.maximize"
+	wait 0.99
+end openApp
+
+
+
+to closeApp
+	# closes top-most level app window
+	#
+	#	put closeApp
+	#
+	put ">> win/closeApp()"
+	
+	key.close
+end closeApp
+
+
+
+to openCitrixApp appName
+	# opens application in Citrix Workspace
+	#
+	#	openCitrixApp("XXXXXXXXX")
+	#	openCitrixApp("XXXXXXXXX")
+	#
+	put ">> win/openCitrixApp()"
+	
+	cmds "key.minimizeAll","wait 0.99","key.winKey","wait 0.99","keys citrix workspace","key.returnKey"
+	
+	sr set,[0.15,0.05,0.85,0.9]
+	if found(pL("Welcome",parentSR,179.99,case)) then cmds "click citrix/apps","wait 2.99"
+	if found(appName,19.99) then click foundImageLocation() + [5,-50]\
+			else note logError,"win/openCitrixApp","Unable to find app name in user's Citrix Workspace. Terminating execution! ","handler","exit all"
+	if found("Legal Notice",179.99) then click pL("win/ok")\
+			else if found("Unable to connect to the server",0) then note logError,"win/openCitrixApp","Windows application did not invoke properly. Terminating execution! ","handler","exit all"
+	
+	rightclick pL("win/taskbar/citrix",bbb,7.499)
+	click pL("Close window",bb,7.499)
+	sr
+	waitUntil 179.99,"win/background/blue",notFound
+end openCitrixApp
+
+
+
+to switchTo appName, indexOrAppTitle="", waitDuration=4.99
+	# switches to the specified application by index or window title considering browser or application icon
+	# if 'appName' is other than any of the predefined app names listed below (image based), then appName will be looked for via OCR
+	#
+	#	put switchTo("Chrome",1)
+	#	put switchTo("Chrome",2)
+	#	put switchTo("Microsoft Edge")
+	#	put switchTo("browser","Google.com")
+	#	put switchTo("acrobat reader")
+	#	win.switchTo "browser","Google.com"
+	#
+	put ">> win/switchTo()"
+	
+	log "switch to appName:"&&appName,"indexOrAppTitle:"&&indexOrAppTitle //debug
+	rwi 0.1
+	set (this,text,appNotFound,index,appTitle) to empty
+	set appFound to false
+	if indexOrAppTitle > ""
+		if indexOrAppTitle is a number then set index to indexOrAppTitle else set appTitle to indexOrAppTitle
+	end if
+	if appName is contained by...
+		"browser": set this to "win/altTab/browser"
+		["mozilla firefox","firefox"]: set this to "win/altTab/browser/firefox"
+		"chrome": set this to "win/altTab/browser/chrome"
+		["microsoft edge","edge"]: set this to "win/altTab/browser/edge"
+		["internet explorer","ie"]: set this to "win/altTab/browser/firefox"
+		"notepad": set this to "win/altTab/notepad"
+		"windows explorer": set this to "win/altTab/explorer"
+		"command prompt": set this to "win/altTab/cmd"
+		else:
+			set text to appName
+	end if
+	--log "appName:"&&appName,"indexOrAppTitle:"&&indexOrAppTitle,"this:"&&this,"text:"&&text,"index:"&&index,"appTitle:"&&appTitle //debug
+	
+	sr set,[0.075,0.08,0.925,0.9]
+	keyDown altKey
+	key.tab
+	wait 0.99
+	
+	try
+		if index > ""
+			set appXYs to everyImageLocation(pL(this,waitDuration))
+			if appXYs > []
+				click item index of appXYs + [0,30]
+				set appFound to true
+			end if
+		else if text > ""
+			if appTitle > ""
+				if found(appTitle,waitDuration)
+					click foundImageLocation() + [0,30]
+					set appFound to true
+				end if
+			else
+				if found(text,waitDuration)
+					click foundImageLocation() + [0,30]
+					set appFound to true
+				end if
+			end if
+		else if appTitle > ""
+			set appInstances to everyImageRectangle(pL(this,waitDuration))
+			repeat for each appInstance of appInstances
+				if readText(appInstance + titleSR,dpi:80,invertImage:true,waitFor:waitDuration) contains appTitle
+					click appInstance.center + [0,30]
+					set appFound to true
+					exit repeat
+				end if
+			end repeat
+		end if
+	catch e
+		note logWarning,"win/switchTo","Specified application was not found! ","handler"
+	end try
+	
+	if not appFound then key.escape
+	keyUp altKey
+	sr
+	rwi
+	moveTo [remoteScreenSize().x/1.3,5]
+	return appFound //true or false
+end switchTo
+
+
+
+to commandLine listOfCommands
+	put ">> win/commandLine()"
+	
+	win.openApp("cmd")
+	waitUntil 9.99,"win/ico/titlebar/cmd",found,1.99
+	rwi 0.01
+	repeat for each item of listOfCommands
+		keys it,returnKey
+		wait 0.499
+	end repeat
+	keys "exit",returnKey
+	rwi
+end commandLine
+
+
+
+to clearTemp
+	put ">> win/clearTemp()"
+	
+	commandLine("rmdir /s/q %localappdata%\temp\")
+end clearTemp
+
+
+
+to killWD
+	# kills specified application related to Selenium WebDriver
+	#
+	put ">> win/killWD()"
+	
+	kill ["geckodriver.exe","chromedriver.exe","javaw.exe","cmd.exe"]
+end killWD
+
+
+
+to killAll
+	# sets Windows SUT to a known state by killing the common applications that might be used during test execution
+	#
+	put ">> win/killAll()"
+	
+	kill ["iexplore.exe","msedge.exe","firefox.exe","chrome.exe","acrord32.exe","cmd.exe"]
+end killAll
+
+
+
+to kill appNameOrAppList
+	# kills apps in the order that they are passed in via list or single app name
+	#
+	#	put kill("tiworker.exe")
+	#
+	put ">> win/kill()"
+	
+	repeat 10 times //hardening against eggplant just stopping keyboard inputs without any explanation
+		win.openApp("cmd")
+		rwi 0.01
+		repeat for each item of appNameOrAppList
+			keys !"taskkill /f /im [[it]] /t",returnKey
+			wait 0.499
+		end repeat
+		if item -1 of appNameOrAppList is not "cmd.exe" then keys "exit",returnKey
+		rwi
+		wait 1.499
+		if not found("win/ico/titlebar/cmd") then exit handler
+	end repeat
+end kill
+
+
+

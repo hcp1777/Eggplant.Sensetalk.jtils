@@ -1,0 +1,23 @@
+﻿# Clicks or moves the mouse cursor to the center of the SUT
+#
+#
+#  Usage Syntax:
+#
+#		center
+#		center(click)
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  center.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+params action="click"
+
+set xy to remoteScreenSize()/2
+if action is "click" then click xy else moveTo xy
+
+
+

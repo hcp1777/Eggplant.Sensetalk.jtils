@@ -1,0 +1,69 @@
+﻿# Returns boolean (e.g., true or false), xy (e.g., [10,10]), or rectangle (e.g., [10,20,30,40]) of the specified image or text
+#
+#
+#  Parameter:
+#
+#		(1) image or text (required for first param)
+#		(2) boolean, XY coordinate, or rectangle
+#		(3) searchRectangle compatible with sr.script
+#		(4) waitFor duration
+#
+#
+#  Usage Syntax:
+#
+#		if found("win/start",bl,9.99,bool) then exit all
+#		set xyxy to found("win/start",xy)
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  found.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+
+set items to parameterList()
+put ">> found.script"
+
+rwi 0.1
+logger 0
+
+if items is not a property list //because pL.script formulated text or image property list can be passed in
+	repeat for each item of items
+		put !" p[[repeatIndex()]] [[notSign]] [[it]]" //debug
+		if repeatIndex() is 1
+			try
+				if imageInfo(it) > "" then set pList to {image:it}
+			catch e
+				set pList to {text:it,dpi:"85"}
+			end try
+		else
+			if it...
+				...is contained by ["bool","boolean"]: set xyRectOrBool to "bool"
+				...is contained by ["xy","loc","location"]: set xyRectOrBool to "xy"
+				...is contained by ["rect","rectangle"]: set xyRectOrBool to "rect"
+				...is a number: set pList.waitFor to it
+				else:
+					if it is a rectangle or if it matches <letter or letters> then set pList.searchRectangle to sr(it)
+			end if
+		end if
+		--put repeatIndex()&&": "&&pList //debug
+	end repeat
+	put "     "&pList
+else
+	set pList to items
+end if
+
+logger
+rwi
+
+if xyRectOrBool is contained by [empty,"xyRectOrBool"] then set xyRectOrBool to "bool" //should default to a boolean check unless otherwise specified
+if xyRectOrBool contains...
+	"x": return imageLocation(pList)
+	"r": return imageRectangle(pList)
+	else:
+		return imageFound(pList)
+end if
+
+

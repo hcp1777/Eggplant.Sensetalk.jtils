@@ -1,0 +1,29 @@
+﻿# Sets the remoteClipboard to the passed in value
+# Script called without a value will clear remoteClipboard()
+#
+#
+#  Usage Syntax:
+#
+#		clipboard
+#		clipboard("yadda yadda")
+#		clipboard(variableName)
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  clipboard.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+params blob
+put ">> clipboard.script"
+
+rwi 0.01
+logger 0
+if blob = "" then set the remoteClipboard to empty else set the remoteClipboard to blob
+logger
+rwi
+
+
+

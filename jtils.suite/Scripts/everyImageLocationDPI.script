@@ -1,0 +1,34 @@
+﻿# Takes the built-in function 'everyImageLocation' and expands it to iterate through different DPI settings to ensure best chance at OCR detection
+# Also accepts searchRectangle values that are compatible with the sr.script
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  everyImageLocationDPI.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+params textString, searchRectangleSR=""
+put !">> everyImageLocationDPI [[notSign]] '[[textString]]'"
+
+if textString = "" then note logError,"everyImageLocationDPI",!"Missing text string to search on. Terminating execution. ","script","exit all"
+set dpiSettings to [70,90,110,130,150,170,190,210,240,270,300]
+set (indentation,finds) to ""
+set pList to {text:textString,waitFor:0}
+if searchRectangleSR > "" then set pList.searchRectangle to sr(searchRectangleSR)
+logger 0
+
+repeat for each item of dpiSettings
+	set pList.dpi to it
+	put !"[[indentation]][[notSign]]"&&"dpi:"&&it
+	insert everyImageLocation(pList) after finds
+	set indentation to indentation&"  "
+end repeat
+
+set finds to util.uniqueList(finds)
+logger
+if finds = [] then note logError,"everyImageLocationDPI",!"Unable to locate [ [[textString]] ] using various DPI settings. Terminating execution. ","script","exit all" else return finds
+
+
+

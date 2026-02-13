@@ -1,0 +1,77 @@
+﻿# Takes the built-in function 'imageFound' and expands it to iterate through different DPI settings to ensure best chance at OCR detection
+#
+#
+#  Parameter:
+#
+#		(1) textString: text or string
+#		(2) searchRec: compatible with sr.script
+#		(3) bypassExceptionOrBool: if set to 'bool', will return true/false (default: not boolean)
+#		(4) dpiVersion: simple, normal, complex (default: complete)
+#		(5) locationOrRectangle: location or rectangle (default: location)
+#
+#
+#  Usage Syntax:
+#
+#		assert not imageFoundDPI("Error",empty,boolean) with error ""
+#       click imageFoundDPI("Continue",br)
+#       set dialogSR to imageFoundDPI("Last Name",parent, empty, normal, rectangle) + [0,0,700,400]
+#
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  imageFoundDPI.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+
+params textString, searchRec="", bypassExceptionOrBool="", dpiVersion="complete", locationOrRectangle="location"
+put !">> imageFoundDPI.script[[newline]][[newline]]       textString:            [[textString]][[newline]]       searchRec:             [[searchRec]][[newline]]       bypassExceptionOrBool: [[bypassExceptionOrBool]][[newline]]       dpiVersion:            [[dpiVersion]][[newline]]       locationOrRectangle:   [[locationOrRectangle]][[newline]]"
+
+if textString = "" then note logError,"imageFoundDPI",!"Missing text string to search on. Terminating execution. ","script","exit all"
+set dpiSettings to [70,80,90,99,110,120,130,140,150,160,170,180,190,200,210,219,230,240,249,260,270,280,290,299,399,499]
+if dpiVersion contains...
+	"simple":	set dpiSettingsIdx to [1,3,5,7,11]
+	"normal":	set dpiSettingsIdx to [1,3,5,7,11,15,17]
+	"complex":	set dpiSettingsIdx to [1,3,5,7,9,11,13,15,17]
+	else
+		set dpiSettingsIdx to dpiSettings
+end if
+
+set indentation to ""
+if searchRec is contained by [empty,"n/a","parentSR","preExistingSR"] then set pList to {text:textString,waitFor:0.1} else set pList to {text:textString,searchRectangle:sr(searchRec),waitFor:0.1}
+
+repeat 3 times
+	--log pList //debug
+	if repeatIndex() = 2
+		set pList.invertImage to true
+		put !"  attempting with 'invertImage:true'"
+	else if repeatIndex() = 3
+		set pList.enableAggressiveTextExtraction to true
+		put !"  attempting with 'enableAggressiveTextExtraction:true'"
+	end if
+	repeat for each item of dpiSettingsIdx
+		if it > 20 then set pList.dpi to it else set pList.dpi to item it of dpiSettings
+		if searchRec is not contained by [empty,"n/a","parentSR","preExistingSR"] then set read to readText(pList.searchRectangle) else set read to readText(searchRectangle())
+		replace all newline with space in read
+		put !<<[[indentation]][[notSign]] dpi: [[pList.dpi]][[newline]][[indentation]]  OCR Read: "[[read]]">>
+		logger 1
+		if imageFound(pList)
+			logger
+			if bypassExceptionOrBool contains "bool" then return true else if locationOrRectangle contains "recta" then return foundImageInfo().imageRectangle else return foundImageLocation()
+		end if
+		set indentation to indentation&"  "
+	end repeat
+	set indentation to ""
+end repeat
+
+if bypassExceptionOrBool contains "bool"
+	return false
+else
+	put newline
+	note logError,"imageFoundDPI",!<<Unable to locate "[[textString]]" using various DPI settings. Terminating execution. >>,"script","exit all"
+end if
+
+
+

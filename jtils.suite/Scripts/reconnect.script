@@ -1,0 +1,28 @@
+# Reconnects to the specified sut
+#
+#
+#  Parameter:
+#
+#		sut:  sut name (default is to call the script without a parameter to reconnect to the current sut)
+#
+#
+#  Usage Syntax:
+#
+#		reconnect
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  reconnect.script
+# AUTHOR NAME:  Jerry Park
+#
+
+params sut
+
+if sut = "" then set sut to connectionInfo().name //requires an existing connection to get sut name
+--if sut = "" then set sut to "XXXXXXXXXX" //debug
+
+disconnect sut
+connect sut
+
+if found("Legal Notice",c,9.99) then key.returnKey

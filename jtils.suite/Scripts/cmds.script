@@ -1,0 +1,87 @@
+﻿# This script is a way to execute various common built-in functions or custom handlers/scripts on a single line of code
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  cmds.script
+# AUTHOR NAME:  Jerry Park
+#
+put ">> cmds.script"
+
+
+set commands to parameterList()
+set totalCmds to the number of items in commands
+set this to empty
+put !" [[notSign]]"&&commands //debug
+
+# repeat through each command
+repeat for each item of commands
+	## extracting pertinent string for the command
+	if it contains...
+		<<(">>: set this to trim(item 2 of split(it,<<(">>),<<")>>)
+		<<">>:  set this to trim(item 2 of split(it,<<">>),<<">>)
+		<<(>>:  set this to trim(item 2 of split(it,<<(>>),<<)>>)
+	end if
+	
+	if this > "" then put !" [[notSign]]"&&"'this' is,"&&this //debug
+	put !<<    [[blackHandPointingRight]] [[it]]>> //debug
+	
+	## executing command
+	if it...
+		...begins with "connect": connect item 2 of split(it,space)
+		...begins with "disconnect": disconnect item 2 of split(it,space)
+		...is "click it": click (asNumber(trim(item 1 of item 2 of split(it,space),"[")),asNumber(trim(item 2 of item 2 of split(it,space),"]")))
+		...matches <"click [",digits,",",digits,"]">: click (asNumber(trim(item 1 of item 2 of split(it,space),"[")),asNumber(trim(item 2 of item 2 of split(it,space),"]")))
+		...matches <"click (",digits,",",digits,")">: click (asNumber(trim(item 1 of item 2 of split(it,space),"(")),asNumber(trim(item 2 of item 2 of split(it,space),")")))
+		...is "click foundImageLocation()": click foundImageLocation()
+		...is "click mouseLocation()": click mouseLocation()
+		...begins with "click text: ": click text: asText(item 2 of split(it,": "))
+		...begins with "click ": click asText(item 2 of split(it,space))
+		...is "doubleclick it": doubleclick (asNumber(trim(item 1 of item 2 of split(it,space),"[")),asNumber(trim(item 2 of item 2 of split(it,space),"]")))
+		...matches <"doubleclick [",digits,",",digits,"]">: doubleclick (asNumber(trim(item 1 of item 2 of split(it,space),"[")),asNumber(trim(item 2 of item 2 of split(it,space),"]")))
+		...matches <"doubleclick (",digits,",",digits,")">: doubleclick (asNumber(trim(item 1 of item 2 of split(it,space),"(")),asNumber(trim(item 2 of item 2 of split(it,space),")")))
+		...is "doubleclick foundImageLocation()": doubleclick foundImageLocation()
+		...begins with "doubleclick text: ": doubleclick text: asText(item 2 of split(it,": "))
+		...begins with "doubleclick ": doubleclick asText(item 2 of split(it,space))
+		...is tripleclick: tripleclick
+		...matches <"rightclick [",digits,",",digits,"]">: rightclick (asNumber(trim(item 1 of item 2 of split(it,space),"[")),asNumber(trim(item 2 of item 2 of split(it,space),"]")))
+		...matches <"rightclick (",digits,",",digits,")">: rightclick (asNumber(trim(item 1 of item 2 of split(it,space),"(")),asNumber(trim(item 2 of item 2 of split(it,space),")")))
+		...is "rightclick foundImageLocation()": rightclick foundImageLocation()
+		...is "rightclick mouseLocation()": rightclick mouseLocation()
+		...begins with "rightclick ": rightclick (item 2 of split(it,space))
+		...is "sr": sr
+		...begins with "sr(": set the searchRectangle to sr(this)
+		...begins with "key.": key.(item 2 of split(it,period))
+		...begins with "keys ": keys asText(item 2 of split(it,"keys "))
+		...begins with "typeEncodedText ": typeEncodedText asText(item 2 of split(it,space))
+		...is "exit all": exit all
+		...matches <"moveTo [",digits,",",digits,"]">: moveTo (asNumber(trim(item 1 of item 2 of split(it,space),"[")),asNumber(trim(item 2 of item 2 of split(it,space),"]")))
+		...matches <"moveTo (",digits,",",digits,")">: moveTo (asNumber(trim(item 1 of item 2 of split(it,space),"(")),asNumber(trim(item 2 of item 2 of split(it,space),")")))
+		...begins with "moveTo ": moveTo item 2 of split(it,space)
+		...begins with "openapp(": win.openApp(this)
+		...begins with "openapp ": win.openApp(item 2 of split(it,space))
+		...begins with "switchto(": win.switchTo(this)
+		...begins with "switchto ": win.switchTo(item 2 of split(it,space))
+		...is "kill all": win.killall
+		...is "clear temp": win.clearTemp
+		...begins with "open(": browser.open(this)
+		...begins with "open ": browser.open(item 2 of split(it,space))
+		...begins with "url(": browser.url(this)
+		...begins with "url ": browser.url(item 2 of split(it,space))
+		...is "reset": browser.reset
+		...begins with "reset(": browser.reset(this)
+		...begins with "log ": log item 2 of split(it,space)
+		...is "logger": run logger
+		...begins with "logger(": run logger(this)
+		...begins with "logger ": run logger (item 2 of split(it,space))
+		...begins with "scrollWheelUp ": scrollWheelUp (item 2 of split(it,space))
+		...begins with "scrollWheelDown ": scrollWheelDown (item 2 of split(it,space))
+		...matches <"return [",digits,",",digits,"]">: return (asNumber(trim(item 1 of item 2 of split(it,space),"[")),asNumber(trim(item 2 of item 2 of split(it,space),"]")))
+		...matches <"return (",digits,",",digits,")">: return (asNumber(trim(item 1 of item 2 of split(it,space),"(")),asNumber(trim(item 2 of item 2 of split(it,space),")")))
+		...begins with "return ": return (item 2 of split(it,"return "))
+		...is "rwi": rwi
+		...begins with <"rwi ",digit>: rwi item 2 of split(it,space)
+		...begins with "wait ": wait item 2 of split(it,space)
+	end if
+end repeat
+

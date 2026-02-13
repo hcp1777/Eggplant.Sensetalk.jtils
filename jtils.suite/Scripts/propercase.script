@@ -1,0 +1,41 @@
+# Consumes a camel-cased string and returns it in proper-case format
+#
+#
+#  Parameter:
+#
+#		input: camel-cased string
+#
+#
+#  Usage Syntax:
+#
+#		set inputFieldLabel1 to propercase("expirationDate")
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  propercase.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+params input
+
+set properized to char 1 of input.toUpper
+delete char 1 of input
+
+repeat for each character of input
+    if...
+        x = 1 and it is it.toUpper considering case:
+            set properized to properized & it
+        it is it.toUpper considering case:
+            set x to 1
+            set properized to properized & space & it
+        else:
+            set x to 0
+            set properized to properized & it
+    end if
+end repeat
+
+return properized
+
+

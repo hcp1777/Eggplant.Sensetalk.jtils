@@ -1,0 +1,437 @@
+﻿# Contains functions/handlers specific to web browser interactions
+# Browser agnostic unless stated otherwise
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  browser.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+to open browser, clearDefaultBrowserMsg="no"
+	# opens specified browser using the Run window. firefox is the default browser
+	#
+	#	open "chrome"
+	#	open "edge",y
+	#
+	put ">> browser/open()"
+	
+	# setting the things
+	set alreadyOpen to false
+	if browser is...
+		"ie":
+			set path to "iexplore.exe"
+		"edge":
+			set path to <<"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe">>
+		"chrome":
+			set path to "chrome"
+		else:
+			set path to "firefox"
+	end if
+	
+	# is browser already open?
+	keyDown altKey
+	key.tab
+	wait 1.499
+	if the number of items in everyImageLocation(pL(!"win/altTab/browser/[[browser]]",[0.075,0.08,0.925,0.9])) > 0 then set alreadyOpen to true
+	keyUp altKey
+	
+	# opening the browser
+	compareScreen(name:"StateOfScreen_RectangleTLL",rectangle:sr(tll)) //because a simple minimize all broke crewtrac functionality if already open
+	win.openApp(path)
+	repeat 1 minute
+		if the number of items of compareScreen(name:"StateOfScreen_RectangleTLL",rectangle:sr(tll)) > 0 then exit repeat
+		wait 4.99
+	end repeat
+	try delete folder suiteInfo().ImagesFolder&"/[Baseline_Screens]"
+	
+	if not alreadyOpen
+		# chrome started displaying popup windows before fully opening browser in Jan 2024
+		if browser is "chrome"
+			repeat 99 times
+				if not found("browser/refresh",t,4.99)
+					if found("Don't sign in",1.99)
+						click foundImageLocation()
+						if found("Enhanced ad privacy",9.99)
+							click pL("Got it",cb,4.99,"inverted")
+						end if
+					else if found("set as default",1.99)
+						moveTo foundImageLocation()
+						click pL("Skip",sr(radius,200))
+					end if
+				else
+					exit repeat
+				end if
+			end repeat
+			try if imageFound(pL("Enhanced ad privacy",t,4.99,"inverted")) then click pL("Got it",cb,4.99,"inverted") //because chrome keeps changing how and when these windows display (Nov 2024)
+		else
+			waitFor 29.99,"browser/refresh"
+			util.keyPress "escape",5
+		end if
+		sr
+		
+		# checking for default browser message if specified to do so
+		if clearDefaultBrowserMsg contains "y"
+			if found("default browser",t,4.99) then click pL("Not now")
+		end if
+		
+		# set browser to expected view
+		loaded
+		maximize
+		
+		# if chrome and restore pages message displays
+		if found("Restore pages",t,1.99) then cmds "click foundImageLocation()","key.escape"
+		if found("Set as default",ct,2.99) then click pL("Not Now",ct)
+		
+		# edge settings
+		if browser contains "edge" //dealing with all of the initial screens presented by edge for user profile, diagnostic data, and theme
+			rightclick [remoteScreenSize().x/2,0]
+			click pL("New tab",sr(radius,br,380),14.99)
+			wait 1.99
+			loaded
+			rightclick item -1 of (everyImageLocation(pL("New tab",t)) sorted)
+			click pL("Close other tabs",mouseLocation()&&&mouseLocation() + [300,500],29.99)
+			key.newTab
+			wait 1.99
+			repeat for each item of ["edge://wallet/settings#settings-personal-info-section","edge://settings/?search=how%20mini%20m"]
+				url it
+				click remoteScreenSize()/1.3
+				if repeatIndex() = 1 and if found("browser/edge/btn/toggle/on")
+					scrollWheelUp 100
+					wait 0.99
+					repeat 2 times
+						iterator click,util.uniqueList(everyImageLocation(pL("browser/edge/btn/toggle/on",0))),"reversed"
+						cmds "scrollWheelDown 10","wait 1.99"
+					end repeat
+				else
+					scrollWheelDown 100
+					wait 0.99
+					try click pL("browser/edge/btn/toggle/on",imageRectangle(pL("show min",0))+[0,-20,1500,20],0)
+				end if
+			end repeat
+			key.closeTab
+		end if
+	end if
+	maximize
+end open
+
+
+
+to close
+	# soft closes the browser in focus (rather than taskkill)
+	#
+	put ">> browser/close()"
+	
+	browser.fullscreen("exit")
+	if found("browser/refresh",t,4.99)
+		key.close
+		if found("close tabs",0.99) then click foundImageLocation()
+	end if
+	sr
+end close
+
+
+
+to addressBar action=""
+	# puts focus in the browser address bar or also get url as return value
+	#
+	put ">> browser/addressBar()"
+	
+	keys "wait 0.499",controlKey&l
+	if action = "get" then return util.copy
+end addressBar
+
+
+
+to url webaddr
+	# opens specified web address
+	#
+	#	put browser.url("google.com")
+	#
+	put ">> browser/url()"
+	
+	loaded
+	keys controlKey&l,"wait 1.99",webaddr,"wait 0.99",deleteKey,returnKey
+	loaded
+end url
+
+
+
+to newTab
+	# opens a new tab
+	#
+	put ">> browser/newTab()"
+	
+	key.newTab
+	wait 1.99
+end newTab
+
+
+
+to closeTab
+	# closes current tab
+	#
+	put ">> browser/closeTab()"
+	
+	key.closeTab
+end closeTab
+
+
+
+to zoomDefault
+	put ">> browser/zoomDefault()"
+	
+	keys controlKey&0
+	wait 1.99
+end zoomDefault
+
+
+
+to zoomOut times=1
+	put ">> browser/zoomOut()"
+	
+	try delete folder suiteInfo().ImagesFolder&"/[Baseline_Screens]"
+	compareScreen(name:"initialScreen",rectangle:sr(tll))
+	
+	keyDown controlKey
+	scrollWheelDown times
+	keyUp controlKey
+	
+	logger 0
+	repeat 15 seconds
+		if compareScreen(name:"initialScreen",rectangle:sr(tll)) > 0
+			try delete folder suiteInfo().ImagesFolder&"/[Baseline_Screens]"
+			wait 0.99
+			logger
+			exit handler
+		end if
+		wait 1.499
+	end repeat
+end zoomOut
+
+
+
+to zoomIn times=1
+	put ">> browser/zoomIn()"
+	
+	try delete folder suiteInfo().ImagesFolder&"/[Baseline_Screens]"
+	compareScreen(name:"initialScreen",rectangle:sr(tll))
+	
+	keyDown controlKey
+	scrollWheelUp times
+	keyUp controlKey
+	
+	logger 0
+	repeat 15 seconds
+		if compareScreen(name:"initialScreen",rectangle:sr(tll)) > 0
+			try delete folder suiteInfo().ImagesFolder&"/[Baseline_Screens]"
+			wait 0.99
+			logger
+			exit handler
+		end if
+		wait 1.499
+	end repeat
+end zoomIn
+
+
+
+to closeOtherTabs
+	# closes all tabs except for the first tab at the left most position
+	# supports firefox, chrome, edge, ie
+	#
+	put ">> browser/closeOtherTabs()"
+	
+	set xyxy to [130,13,430,513]
+	try
+		cmds "rwi 0.15",!"click [130,13]",!"rightclick [130,13]","wait 1.499"
+		if imageFound(pL("close multiple tabs",xyxy,0,"inverted"))
+			set xy to foundImageLocation()
+			click xy
+			if found("right",[xy.x,xy.y - 20,xy.x + 290,xy.y + 130],0.7499) then click foundImageLocation() else key.escape
+		else if imageFound(pL("close other tabs",xyxy,0,"inverted")) or imageFound(pL("close othertabs",xyxy,0,"inverted"))
+			click foundImageLocation()
+			if imageFound(pL("close other",xyxy,0,"inverted")) then key.escape
+		else
+			key.escape
+			rightclick [115,70]
+			if imageFound(pL("close other tabs",tll,0.99,"inverted")) or found("close othertabs",tll,0.99) then click foundImageLocation()
+		end if
+		rwi
+	end try
+	sr
+end closeOtherTabs
+
+
+
+to back
+	put ">> browser/back()"
+	key.back
+end back
+
+
+
+to forward
+	put ">> browser/forward()"
+	
+	key.forward
+end forward
+
+
+
+to refresh waitDuration="29.99", waitAfterDuration="1.99"
+	put ">> browser/refresh()"
+	
+	keys controlKey&f5
+	if not found("browser/back",t,1.99) then wait 4.99 else loaded waitDuration,waitAfterDuration //considers when fullscreen before looking for the refresh button in the toolbar
+end refresh
+
+
+
+to loaded waitDuration="119.99", waitAfterDuration="0.499"
+	put ">> browser/loaded()"
+	
+	waitUntil waitDuration,"browser/refresh",found,waitAfterDuration,t
+end loaded
+
+
+
+to maximize
+	put ">> browser/maximize()"
+	
+	key.maximize
+end maximize
+
+
+
+to fullscreen check=""
+	# makes the browser window fullscreen
+	# if 'check' is not empty, it first checks if the browser is not fullscreen before making it fullscreen
+	# if 'check' is 'exit', then browser will be exited out of fullscreen mode
+	#
+	#	fullscreen
+	#	fullscreen "exit"
+	#
+	put ">> browser/fullscreen()"
+	
+	moveTo remoteScreenSize()
+	if check is "exit"
+		if not found("browser/refresh",t,0)
+			key.f11
+			waitUntil 4.99,"browser/refresh",found,0,tll
+		end if
+	else if found("browser/refresh",t,0)
+		key.f11
+		waitUntil 4.99,"browser/refresh",notFound,0,tll
+	end if
+end fullscreen
+
+
+
+to reset browser
+	# clears cookies/cache/profile depending on browser
+	# can specify a browser or leave parameter empty to clear all browsers
+	#
+	#	reset()
+	#	reset(edge)
+	#	reset(chrome)
+	#	reset(firefox)
+	#	reset(ie)
+	#
+	put ">> browser/reset()"
+	
+	set ieCommands to ["RunDll32.exe InetCpl.cpl,ClearMyTracksByProcess 1",
+		"RunDll32.exe InetCpl.cpl,ClearMyTracksByProcess 2",
+		"RunDll32.exe InetCpl.cpl,ClearMyTracksByProcess 8",
+		"RunDll32.exe InetCpl.cpl,ClearMyTracksByProcess 16",
+		"RunDll32.exe InetCpl.cpl,ClearMyTracksByProcess 32",
+		<<del /f/s/q "%localappdata%\Microsoft\Internet Explorer\CacheStorage\*">>,
+		<<rd /s/q "%localappdata%\Microsoft\Internet Explorer\DOMStore">>]
+	set eCommands to [<<rd /s/q "%localappdata%\Microsoft\Edge\User Data\Default">>]
+	set cCommands to [<<rd /s/q "%localappdata%\Google\Chrome\User Data">>]
+	set ffCommands to ["rd /s/q %localappdata%\Mozilla\Firefox\Profiles",
+		"rd /s/q C:\ProgramData\Mozilla-1de4eec8-1241-4177-a864-e594e8d1fb38",
+		"rd /s/q %userprofile%\appdata\LocalLow\Mozilla",
+		"rd /s/q %appdata%\Mozilla"]
+	set allCommands to (ieCommands &&& eCommands) &&& (cCommands &&& ffCommands)
+	
+	if browser is...
+		"ie": set commandList to ieCommands
+		"edge": set commandList to eCommands
+		"chrome": set commandList to cCommands
+		"firefox": set commandList to ffCommands
+		else:
+			set commandList to allCommands
+	end if
+	win.commandLine(commandList)
+end reset
+
+
+
+to configureFF name, setting, idx=1
+	# only for boolean type settings. assumes that firefox is running
+	#
+	#  put configureFF("browser.download.always_ask_before_handling_new_types",true)
+	#  put configureFF("browser.download.always_ask_before_handling_new_types",false)
+	#
+	
+	rwi 0.1
+	--win.switchTo("firefox")
+	keys controlKey&t,"wait 1.99","about:config",returnKey,"wait 2.99",returnKey,"wait 1.99",name,returnKey
+	set currSetting to readText([750,100,1300,540])
+	if idx > 1 then set currSetting to line idx of currSetting else set currSetting to line 1 of currSetting
+	if trim(currSetting) is not setting
+		key.tab
+		repeat idx times
+			key.tab
+		end repeat
+		key.space
+	end if
+	cmds "sr","key.closeTab","rwi","wait 0.99"
+end configureFF
+
+
+
+to configureChrome name, setting, idx=1
+	# setting certain config in chrome for testing purposes
+	#
+	#  put configureFF("browser.download.always_ask_before_handling_new_types",true)
+	#  put configureFF("browser.download.always_ask_before_handling_new_types",false)
+	#
+	put ">> browser/configureChrome()"
+	
+	rwi 0.1
+	newTab
+	wait 0.99
+	url("chrome://flags/#infinite-session-restore")
+	keys controlKey&t,"wait 1.99","about:config",returnKey,"wait 2.99",returnKey,"wait 1.99",name,returnKey
+	set currSetting to readText([750,100,1300,540])
+	if idx > 1 then set currSetting to line idx of currSetting else set currSetting to line 1 of currSetting
+	if trim(currSetting) is not setting
+		key.tab
+		repeat idx times
+			key.tab
+		end repeat
+		key.space
+	end if
+	cmds "sr","key.closeTab","rwi","wait 0.99"
+end configureChrome
+
+
+
+to disablePasswordManagerEdge
+	# disables Edge browser password manager which can pre-populate fields and get in the way of subsequent automation executions
+	# assume Edge is already opened and in focus
+	#
+	put ">> browser/disablePasswordManagerEdge()"
+	
+	key.newTab
+	url("edge://settings/passwords")
+	click pL("Offer to save passwords",[0.1,0.1,1,1])
+	wait 1.499
+	if not found("Strong password suggestions are off",t,2.99) then click mouseLocation()
+	key.closeTab
+end disablePasswordManagerEdge
+
+
+

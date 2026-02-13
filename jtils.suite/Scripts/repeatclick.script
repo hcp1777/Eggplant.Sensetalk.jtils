@@ -1,0 +1,44 @@
+﻿# Repeatclick is a slower version of doubleclick
+# Can harden the automation when system or environment is unstable where the default doubleclick might be too fast
+#
+#
+#  Parameters:
+#
+#		imageTextXY (required):
+#			- Location/coordinate
+#			- Image path/name
+#			- Text string
+#
+#
+#  Usage Syntax:
+#
+#    	repeatclick xy
+#    	repeatclick imageName
+#    	repeatclick text
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  repeatclick.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+params imageTextOrXY
+put !">> repeatclick [[notSign]] [[imageTextXY]]"
+
+if imageTextXY is not a list
+	try
+		if imageInfo(imageTextXY) > "" then set pList to imageTextXY
+	catch e
+		set pList to {text:imageTextXY}
+	end try
+else
+	set pList to imageTextXY
+end if
+
+click pList
+wait 1
+click imageTextOrXY
+
+

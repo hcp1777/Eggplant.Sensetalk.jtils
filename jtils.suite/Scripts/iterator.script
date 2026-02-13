@@ -1,0 +1,45 @@
+﻿# Consumes a list and performs a specified click or moveTo action on each item of the list
+#
+#
+#  Parameter:
+#
+#		(1) action: click, doubleclick, tripleclick, repeatclick, sureclick, moveTo (default: click)
+#		(2) listOfItems: list of items
+#		(3) order: reverse, shuffle (default: unaltered)
+#
+#
+#  Usage Syntax:
+#
+#		put iterator(click,[[20,20],[100,100],[50,50],[1000,1000]])
+#		put iterator(click, everyImageLocation("btnExit"))
+#
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  iterator.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+
+params action="click", listOfItems=[], order=""
+put ">> iterator.script"
+
+if order contains...
+	"reverse": set listOfItems to listOfItems reversed
+	"shuffle": set listOfItems to listOfItems shuffled
+end if
+
+repeat for each item of listOfItems
+	if action is...
+		"click":		if the number of items in it is 4 then click it.center else click it
+		"doubleclick":	if the number of items in it is 4 then doubleclick it.center else doubleclick it
+		"tripleclick":	if the number of items in it is 4 then tripleclick it.center else tripleclick it
+		"repeatclick":	if the number of items in it is 4 then repeatclick it.center else repeatclick it
+		"sureclick":	if the number of items in it is 4 then sureclick it.center else sureclick it
+		"moveTo":		if the number of items in it is 4 then moveTo it.center else moveTo it
+	end if
+end repeat
+
+

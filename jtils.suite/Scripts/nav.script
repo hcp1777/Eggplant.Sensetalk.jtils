@@ -1,0 +1,34 @@
+﻿# Navigation handlers
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  nav.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+
+to here
+	# navigation handler that clicks through one to many items
+	# if first parameter is "www", handler will look for webpage to finish loading in the browser before clicking on the next parameter
+	#
+	#	put here(www,"text to click on 1","text to click on 2","text to click on 3")
+	#	put here("menu item link label")
+	#
+	put ">> nav/here()"
+	
+	set items to parameterList()
+	
+	if item 1 of items is "www"
+		set web to 1
+		pull items
+	end if
+	
+	repeat for each item of items
+		click imageFoundDPI(it)
+		if web = 1 then browser.loaded
+	end repeat
+end here
+
+

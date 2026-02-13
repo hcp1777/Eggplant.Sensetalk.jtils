@@ -1,0 +1,88 @@
+﻿# Waits for image or text for a specified duration or until the image or text disappears from the screen including an option to wait afterwards
+#
+# Eggplant's built-in "wait until" can theoretically continue to execute forever if what it is looking for isn't found
+# Another problem with the built-in wait until function is that execution can continue with the next line of code too soon which can cause execution failure
+#
+# This script can also replace the built-in "waitFor" function as a more robust alternative
+#
+#
+#  Parameter:
+#
+#		(1) imageOrText: image filepath/filename or text string
+#		(2) notFound: found or not found
+#		(3) duration: number of seconds
+#		(4) waitAfter: number of seconds after found or not found (in case of unstable environments)
+#
+#
+#  Usage Syntax:
+#
+#		waitUntil 10,"browser/refresh",found
+#		waitUntil 30,"Save Print Output As",notFound,10
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  waitUntil.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+params duration=9.99, imageOrText, notFound="found", waitAfter=0, searchRec="", dpiValue=85
+
+put !<<    ./waitUntil.script[[newline]]      [[notSign]] Waiting [[duration]] seconds for "[[imageOrText]]"...>>
+
+set visible to empty
+set timeExpired to false
+logger 0
+
+# determining whether to look for image or text
+try
+	if imageInfo(imageOrText) > "" then set pList to {image:imageOrText}
+catch e
+	set pList to {text:imageOrText,dpi:dpiValue}
+end try
+
+# add searchRectangle and waitFor properties to the property list
+if searchRec begins with "sr(" then set pList.searchRectangle to sr(item 1 of split(item 2 of split(searchRec,"sr("),")")) else if searchRec > "" then set pList.searchRectangle to sr(searchRec)
+set pList.waitFor to 0.99
+put "         "&pList
+
+# looking for imageOrText to be found (or be removed from) the screen for the specified duration of time
+repeat for duration seconds
+	if notFound contains "not" and if not imageFound(pList) then set visible to false else if notFound is "found" and if imageFound(pList) then set visible to true
+	if visible > "" then exit repeat
+end repeat
+sr
+if notFound contains "not" and visible is empty then set timeExpired to true
+
+# log result for waitUntil
+if...
+	timeExpired:
+		logger
+		screenshot !"waitUntil - still visible when wait time expired" //debug
+		note logWarning,"waitUntil",!<<"[[imageOrText]]" was still on screen when specified duration of [[duration]] seconds had expired>>,"script"
+	notFound is "found" and not visible:
+		logger
+		screenshot !"waitUntil - not found within [[duration]] seconds" //debug
+		note logWarning,"waitUntil",!<<"[[imageOrText]]" was not found within [[duration]] seconds>>,"script"
+	notFound is "found" and visible:
+		logger
+		put !<<      [[notSign]] Found "[[imageOrText]]" at [[foundImageLocation()]]!>>
+	notFound contains "not" and visible is not false:
+		logger
+		screenshot !"waitUntil - still visible after specified duration" //debug
+		note logWarning,"waitUntil",!<<"[[imageOrText]]" is still visible after specified duration>>,"script"
+	notFound contains "not":
+		logger
+		put !<<       [[notSign]] "[[imageOrText]]" is no longer visible on the screen!>>
+end if
+
+# handles wait time after found/notFound if specified
+if waitAfter > 0
+	put !<<         [[notSign]] Waiting after for [[waitAfter]] seconds...>>
+	wait waitAfter
+	put !<<         [[notSign]] Done!>>
+end if
+
+
+

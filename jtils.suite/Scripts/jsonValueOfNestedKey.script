@@ -1,0 +1,38 @@
+# Sensetalk (natively) is unable to access a nested property list (json data) using variable that contains dot notation
+# This script manually drills down to the nested key using specified dot notation parameter and returns the key's value
+#
+#
+#  Parameter:
+#
+#		(1) jsonFilePathNameOrJsonData: json filepathname or json data blob
+#		(2) keyPathUsingDotNotation: the dot notation path to the key with value of interest
+#
+#
+#  Usage Syntax:
+#
+#		set memberID to jsonValueOfNestedKey("test.json","RecordsChanged.payload.Member.MemberID")
+#		if jsonValueOfNestedKey("test.json","RecordsChanged.payload.Member.employment.employmentStartDate") > "01.01.2020" then log true
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  jsonValueOfNestedKey.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+
+params jsonFilePathNameOrJsonData, keyPathUsingDotNotation
+put ">> util/getValueOfNestedKey()"
+
+if jsonFilePathNameOrJsonData is a property list then set jsonData to jsonFilePathNameOrJsonData else set jsonData to util.jsonData(jsonFilePathNameOrJsonData)
+set keys to split(keyPathUsingDotNotation,period)
+
+repeat for each item of keys
+    set currKey to it
+    set jsonData to jsonData.(currKey)
+end repeat
+
+return jsonData
+
+

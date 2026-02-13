@@ -1,0 +1,111 @@
+﻿# Various utility handlers that are project and application specific
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  util.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+
+to topsDateFormat dateToFormat
+	# converts date to TOPS date format of day-month-year
+	# if date is empty, uses today's date
+	# otherwise, date format must be passed through in this format -> "2023-07-13"
+	#
+	put ">> util/topsDateFormat()"
+	
+	if dateToFormat = "" then return formattedTime("[da]-[mon]-[year]",today) else return formattedTime("[da]-[mon]-[year]",dateToFormat)
+end topsDateFormat
+
+
+
+to keyPress keyString, numOfKeyPresses
+	# used in place of full repeat statement just to press the same key more than a couple of times
+	#
+	#	if (keyString) is a name of a handler in key.script, key.script will be used else (keyString) will be used
+	#	numOfKeyPresses = int
+	#	
+	
+	put !<<Pressing [ [[keyString.toUpper]] ] [[numOfKeyPresses]] times...>>
+	rwi 0.01
+	logger 0
+	repeat numOfKeyPresses times
+		if keyString is contained by (handlerNames(key)).asText then key.(keyString) else keys keyString
+	end repeat
+	logger
+	rwi
+	wait 0.99
+end keyPress
+
+
+
+to copy useSelectAll="use select all"
+	clipboard
+	if useSelectAll = "use select all" then key.selectAll
+	key.copy
+	return remoteClipboard()
+end copy
+
+
+
+to copyDocument
+	# copy the entire file one page at a time to bypass the RDP clipboard size restriction
+	#
+	put ">> util/copyDocument()"
+	
+	key.h
+	repeat 100 times
+		center
+		put newline&copy() after pageData
+		if remoteClipboard() is prevPage then return pageData else set prevPage to remoteClipboard()
+		key.pageDown
+	end repeat
+end copyDocument
+
+
+
+to uniqueList listOfLists
+	# takes passed in nested list (up to 4 items per list) and removes all duplicates and similar values and returns a truly unique nested list of lists
+	(*
+		log uniqueList(everyImageRectangle(pL("tileColor/full/red/zoom90")))
+		log uniqueList(everyImageRectangle(image:"tileColor/full/red",searchRectangle:[172.8,101,975,338],waitFor:0))
+		log uniqueList([[229,196,342,249],[354,196,467,249],[479,196,592,249],[604,196,717,249],[729,196,842,249],[479,260,592,313],[604,260,717,313],[229,261,342,314],[353,260,467,315],
+			[479,261,592,314],[604,261,717,314],[729,261,842,314],[479,262,592,315],[604,262,717,315],[229,325,342,378],[354,325,467,378],[479,325,592,378],[229,326,342,379],
+			[354,326,467,379],[479,326,592,379],[229,327,342,380],[354,327,467,380],[479,327,592,380]])
+	*)
+	put ">> util/uniqueList()"
+	
+	set duplicates to empty
+	set listOfLists to the unique items of listOfLists sorted
+	--log "listOfLists (initial sorted):"&&listOfLists //debug
+	
+	repeat for each currList of listOfLists
+		if repeatIndex() is contained by duplicates then next repeat
+		repeat for each item of listOfLists
+			if currList = it then next repeat
+			set outOfRange to false
+			set (i1,i2) to (currList.x,currList.y)
+			--log "currlist:"&&currlist,"i1:"&&i1,"i2:"&&i2 //debug
+			if abs(i1 - it.x) <= 20 and abs(i2 - it.y) <= 20
+				if the number of items in currList > 2
+					repeat the number of items of currList - 2 times
+						if abs(item repeatIndex()+2 of currList - item repeatIndex()+2 of it) > 20 then set outOfRange to true
+					end repeat
+				end if
+			else
+				set outOfRange to true
+			end if
+			if not outOfRange then insert repeatIndex() after duplicates
+		end repeat
+	end repeat
+	--log "duplicates:"&&duplicates //debug
+	if duplicates > "" then delete items duplicates of listOfLists
+	--log "listOfLists (after with duplicates removed):"&&listOfLists //debug
+	
+	return listOfLists
+end uniqueList
+
+
+

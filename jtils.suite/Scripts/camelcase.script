@@ -1,0 +1,40 @@
+# Consumes a string and returns it in camel-case format (not all input formats are supported)
+#
+#
+#  Parameter:
+#
+#		input: for best results, use capitalized words that are separated by space
+#
+#
+#  Usage Syntax:
+#
+#		set inputField1 to camelcase("Member ID")
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  camelcase.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+params input
+
+set input to input.toLower
+set (camelized,x) to empty
+repeat for each character of input
+    if...
+        it matches <punctuation or whitespace>:
+            set x to 1
+        x = 1:
+            set x to 0
+            if camelized > "" then set camelized to camelized & it.toUpper else set camelized to camelized & it
+        else:
+            set camelized to camelized & it
+    end if
+end repeat
+
+return camelized
+
+
+

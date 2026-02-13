@@ -1,0 +1,34 @@
+# When select all will not work in an input field or system or webapp
+#
+#
+#  Parameter:
+#
+#		(1) direction: left, right, up, down
+#		(2) numOfKeyPresses: integer (default: 10)
+#
+#
+#  Usage Syntax:
+#
+#		put highlighter(left, 20)
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  highlighter.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+params direction, numOfKeyPresses=10
+
+logger 0
+rwi 0.1
+keyDown shiftKey
+keyPress direction,numOfKeyPresses
+keyUp shiftKey
+key.copy
+rwi
+logger
+
+put !">> util/highlighter() [[notSign]] [[remoteClipboard()]]"
+return remoteClipboard()

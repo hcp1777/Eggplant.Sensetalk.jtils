@@ -1,0 +1,114 @@
+﻿# Functions/handlers related to authentication
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  auth.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+to credentials usernameOrPassword, encoded=""
+	put ">> auth/credentials()"
+	
+	if encoded is contained by ["n","no",empty] then keys usernameOrPassword else typeEncodedText usernameOrPassword
+end credentials
+
+
+
+to login username, password, encoded=""
+	# types supplied username and/or password using either clear text or encoded string
+	#
+	#	login "B6CRWQA1","UeG[u:(Y"
+	#	login "B6CRWQA1","UeG[u:(Y","y"
+	#
+	put ">> auth/login()"
+	
+	if encoded = "both" then credentials username,y else credentials username
+	key.tab
+	credentials password,encoded
+	key.returnKey
+end login
+
+
+
+to ssoLogin pList
+	# to handle to login process when SSO or SSO with MFA is encountered
+	#
+	put ">> auth/ssoLogin()"
+	
+	repeat 4 times
+		browser.loaded
+		if repeatIndex() is...
+			1:
+				if found("Pick an account",c,4.99)
+					click pL(pList.topsUsername)
+				else
+					if not imageFound(pL("Can't access your account",m,0,95))
+						sr
+						click pL("ser Name",m,9.99,"local contrast")
+						sr
+						keys (item 1 of split(pList.topsUsername,"@")),tab
+						auth.credentials pList.topsPassword,y
+						key.returnKey
+						exit repeat
+					else
+						keys pList.topsUsername,returnKey
+					end if
+				end if
+			2:
+				waitUntil 29.99,"Account reset",found,0,r
+				auth.credentials pList.topsPassword,y
+				cmds "key.returnKey","wait 4.99","key.escape"
+			3:
+				repeat 1991 times //handles enabled or disabled MFA in the login process
+					if imageFound(pL("tops/mainMenu",empty,0.99))
+						exit script
+					else if imageFound(pL("More information",cb,0.99))
+						if imageFound(pL("Enter Code",c,9.99)) then exit repeat
+						if imageFound(pL("Approve sign in request",c,0))
+							click pL("I can't use",cc)
+							click pL("Use a verification code",cc)
+							exit repeat
+						else if imageFound(pL("We didn't hear from you",c,0))
+							click pL("Enter a security code",cc)
+							exit repeat
+						end if
+					end if
+					if repeatIndex() is 1991 then note logError,"tops/init","Issue with MFA screen or server-side process/response. Terminating execution! ","script","exit all"
+end repeat
+4:
+browser.newTab
+cmds 0.1,"keys https://XXXXXXXXXX",!"typeEncodedText [[pList.topsMfaSecretKey]]","key.returnKey"
+if pList.browser contains "fire" //firefox vs chrome
+					repeat for 1 minute
+						if imageFound(pL("Security Risk Ahead",c,0))
+							sr
+							click text:"Advanced"
+							scrollWheelDown 10
+							click text:"Accept the risk and continue"
+							exit repeat
+						else if imageFound(pL("Collapse All",tll,0))
+							sr
+							exit repeat
+						end if
+					end repeat
+					click pL("Copy",tll,9.99)
+				else
+					repeat for 30 seconds
+						if readText(sr(0,imageLocation("browser/refresh").y+15,0.3,0.2)) contains <6 digits> then exit repeat
+					end repeat
+					center
+					put util.copy()
+				end if
+				browser.closeTab
+				wait 1.99
+				keys trim(item 2 of split(remoteClipboard(),<<">>)),returnKey
+				--if not imageFound(pL(code,cc,0)) then keys tab,trim(code),returnKey else key.returnKey
+		end if
+		sr
+		wait 1.99
+	end repeat
+end ssoLogin
+
+
