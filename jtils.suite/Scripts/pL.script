@@ -53,6 +53,7 @@
 #            - "aggressive": pList.enableAggressiveTextExtraction = true
 #            - "new","newline",newline: pList.ignoreNewLines = true
 #            - "multiline","multi": pList.multiLine = true
+#            - "diff": pList.TextDifference = the number that is within the parameter (default: 1)
 #
 #    5. Output: Returns the constructed pList for use in-line of the code where the script was called
 #
@@ -103,6 +104,9 @@ repeat for each item of textProperties
 		...contains "aggressive": set pList.enableAggressiveTextExtraction to true
 		...is contained by ["new","newline",newline]: set pList.ignoreNewLines to true
 		...is contained by ["multiline","multi"]: set pList.multiLine to true
+		...contains "diff": 
+			if it contains <digit> then delete <letters, whitespace> from it else set it to 1
+			set pList.TextDifference to it
 	end if
 end repeat
 
@@ -110,6 +114,7 @@ logger
 put !" >> pL [[notSign]] [[pList]]"
 
 return pList
+
 
 
 
