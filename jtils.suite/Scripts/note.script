@@ -1,0 +1,42 @@
+﻿# Specifically used in handlers or scripts for when a log message can be helpful during execution for troubleshooting or debugging
+# Can specify to terminate execution
+#
+#
+#  Parameter:
+#
+#		(1) logType: put, log, logSuccess, logError, logWarning
+#		(2) scriptOrHandlerPath: script or handler name (including path)
+#		(3) message: string
+#		(4) terminateAction: not empty, if an 'exit all' is required
+#
+#
+#	Usage Syntax:
+#
+#		note log,handlerPathAndName,"Logger message"
+#		note logSuccess,scriptPathAndName,"Logger message",y
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  note.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+params logType, scriptOrHandlerPath, message, script="", terminateAction=""
+
+set scriptMsg to !"./[[scriptOrHandlerPath]].script [[notSign]] [[message]] "
+set handlerMsg to !"./[[scriptOrHandlerPath]]() [[notSign]] [[message]] "
+set textMsg to !"[[scriptOrHandlerPath]] [[notSign]] [[message]] "
+
+if logType is contained by...
+	"put": if script is contained by ["y","script"] then put scriptMsg else if script contains "handler" then put handlerMsg else if script contains "test" then put textMsg
+	"log": if script is contained by ["y","script"] then log scriptMsg else if script contains "handler" then log handlerMsg else if script contains "test" then log textMsg
+	"logSuccess": if script is contained by ["y","script"] then logSuccess scriptMsg else if script contains "handler" then logSuccess handlerMsg else if script contains "test" then logSuccess textMsg
+	"logError": if script is contained by ["y","script"] then logError scriptMsg else if script contains "handler" then logError handlerMsg else if script contains "test" then logError textMsg
+	"logWarning": if script is contained by ["y","script"] then logWarning scriptMsg else if script contains "handler" then logWarning handlerMsg else if script contains "test" then logWarning textMsg
+end if
+
+if terminateAction is "exit all" then exit all
+
+

@@ -1,0 +1,63 @@
+# Performs a triple-click
+#
+#
+#  Parameters:
+#
+#		(1) imageTextXY (required):
+#				- Location/coordinate
+#				- Image path/name
+#				- Text string
+#
+#		(2) returnHighlightedText (optional): If not empty, returns current selection (default: no copy)
+#
+#
+#  Usage Syntax:
+#
+#    	tripleclick xy
+#    	tripleclick imageName
+#    	tripleclick text,true
+#
+#
+#  Return value:
+#
+#		If returnHighlightedText is not empty: returns highlighted text
+#		Otherwise: no explicit return.
+#
+# 
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  tripleclick.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+params imageTextXY, returnHighlightedText=""
+put !">> tripleclick [[notSign]] [[imageTextXY]]"
+
+rwi 0.01
+logger 0
+if imageTextXY is not a list
+	try
+		if imageInfo(imageTextXY) > "" then set pList to imageTextXY
+	catch e
+		set pList to {text:imageTextXY}
+	end try
+else
+	set pList to imageTextXY
+end if
+logger
+
+click pList
+click
+click
+rwi
+
+if returnHighlightedText > ""
+	key.copy
+	return remoteClipboard()
+end if
+
+
+
+
+

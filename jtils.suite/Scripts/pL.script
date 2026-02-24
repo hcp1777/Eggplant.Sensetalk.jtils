@@ -1,0 +1,120 @@
+# Constructs and returns a property list (pL) for use in image or text recognition/search operations.
+# It dynamically determines if the source is an image or text string, then applies optional
+# search constraints, wait times, and text ocr modifiers to the property list as specified.
+#
+#
+#  Parameters:
+#
+#       (1) source (required):  image name or text
+#       (2) searchRec (optional, required if textProperty1 is used):  compatible with sr.script or rectangle list
+#       (3) waitForTime (optional, required if textProperty1 is used):  timeout value
+#       (4..11) textProperty1..textProperty7 (optional):  text (ocr tuning) properties, see available properties below
+#
+#
+#  Usage Syntax:
+#
+#       set xy to imageLocation(pL("Last Name", tl, 4.99, invert, case))
+#       click pL("os/win/start", bl, 9.99)
+#       if imageFound(pL("B13888", parent, 10, validCharacters)) then click foundImageLocation()
+#
+#
+#  Key Functionality:
+#
+#    1. Source Detection:
+#
+#        - Checks if source is a valid image using imageInfo(source)
+#        - Sets pList.image if image, otherwise pList.text
+#
+#    2. Search Rectangle Handling (searchRec):
+#
+#        - If numeric: Sets pList.waitFor to the value
+#        - If "empty": Sets searchRectangle to the full screen of the SUT
+#        - If "parent": Uses searchRectangle() (current search area)
+#        - If starts with "sr(": Parses and evaluates as a call into the sr.script (e.g., "sr(radius,bl,350)")
+#        - If rectangle (4 item list) or letter(s) (must be supported by the sr.script): Converts to sr(searchRec)
+#        - Otherwise: Ignored
+#
+#    3. Wait Time (waitForTime):
+#
+#        - Adds pList.waitFor if provided and not contained by empty, "n/a", or "na"
+#
+#    4. Text Properties Processing (up to 7 via textProperty1 to textProperty7):
+#
+#        - Supports the following properties/modifiers if it is or contains:
+#            - a number: Sets pList.dpi
+#            - "words": Sets pList.validWords to "*"
+#            - "char": Sets pList.validCharacters to "*"
+#            - "invert": pList.invertImage = true
+#            - "contrast": pList.enhanceLocalContrast = true
+#            - "case": pList.caseSensitive = true
+#            - "space": pList.ignoreSpace = true
+#            - "under": pList.ignoreUnderscores = true
+#            - "scale": Sets pList.scale to a range (0.5 to 1.5 in 0.05 steps; hardcoded)
+#            - "aggressive": pList.enableAggressiveTextExtraction = true
+#            - "new","newline",newline: pList.ignoreNewLines = true
+#            - "multiline","multi": pList.multiLine = true
+#            - "diff": pList.TextDifference = the number that is within the parameter (default: 1)
+#
+#    5. Output: Returns the constructed pList for use in-line of the code where the script was called
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  pL.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+params source, searchRec="", waitForTime="", textProperty1="", textProperty2="", textProperty3="", textProperty4="", textProperty5="", textProperty6="", textProperty7=""
+
+logger 0
+set textProperties to [textProperty1, textProperty2, textProperty3, textProperty4, textProperty5, textProperty6, textProperty7]
+set (stringOfValidChars,addedValidChars) to false
+
+# determining whether to look for image or text from 'source'
+try
+	if imageInfo(source) > "" then set pList to {image:source}
+catch e
+	set pList to {text:source}
+end try
+
+# add search rectangle if applicable
+if searchRec is a number then set pList.waitFor to searchRec\
+		else if searchRec is contained by [empty,"empty"] then set pList.searchRectangle to [0,0]&&&remoteScreenSize()\
+			else if searchRec is contained by ["n/a","na","parent"] then set pList.searchRectangle to searchRectangle()\
+				else if searchRec is a rectangle or searchRec matches <letter or letters> then set pList.searchRectangle to sr(searchRec)
+
+
+# add waitFor to the property list
+if waitForTime is not contained by [empty,"n/a","na"] then set pList.waitFor to waitForTime
+
+# add text property to the property list
+repeat for each item of textProperties
+	if it = "" then exit repeat
+	if it...
+		...is a number: set pList.dpi to it
+		...contains "words": set pList.validWords to "*"
+		...contains "char": set pList.validCharacters to "*"
+		...contains "invert": set pList.invertImage to true
+		...contains "contrast": set pList.enhanceLocalContrast to true
+		...contains "case": set pList.caseSensitive to true
+		...contains "space": set pList.ignoreSpace to true
+		...contains "under": set pList.ignoreUnderscores to true
+		...contains "scale": set pList.scale to 0.5..1.5 by 0.05
+		...contains "aggressive": set pList.enableAggressiveTextExtraction to true
+		...is contained by ["new","newline",newline]: set pList.ignoreNewLines to true
+		...is contained by ["multiline","multi"]: set pList.multiLine to true
+		...contains "diff": 
+			if it contains <digit> then delete <letters, whitespace> from it else set it to 1
+			set pList.TextDifference to it
+	end if
+end repeat
+
+logger
+put !" >> pL [[notSign]] [[pList]]"
+
+return pList
+
+
+
+

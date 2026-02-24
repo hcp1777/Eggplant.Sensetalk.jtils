@@ -1,0 +1,24 @@
+﻿# Sets the remoteWorkInterval to the passed in value
+# script called without a value will set the remoteWorkInterval back to default (i.e., 0.7 seconds)
+#
+#
+#  Usage Syntax:
+#
+#		rwi 0.1
+#		rwi
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  rwi.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+params speed
+
+logger 0
+if speed = "" then set the remoteWorkInterval to 0.7 else set the remoteWorkInterval to speed
+logger
+
+

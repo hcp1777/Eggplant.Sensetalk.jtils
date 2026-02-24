@@ -1,0 +1,123 @@
+﻿# Used to define the searchRectangle (sr) based on remoteScreenSize() or can call one of the predefined areas of the screen listed below
+#
+# Calling this handler without any parameters will clear any custom region or stale yellow rectangle lines and reset the searchRectangle
+# back to the fullscreen on the SUT
+#
+# Ability to search within specified radius from mouse cursor location or directionally (from mouse cursor)
+# 
+#
+#  Usage Syntax:
+#
+#		sr
+#	 	sr(t)
+#	 	sr(0,0,0.75,1)
+#	 	sr set,tl
+#	 	sr(radius,br,150)
+#		sr(380, imageLocation("titleBarIcon").y, 1, imageLocation(text:"Legal Notice").y)
+#
+# 
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  sr.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+set [x1,y1,x2,y2] to parameterList()
+set s to remoteScreenSize()
+
+if x1 is a rectangle
+	set y2 to item 4 of x1
+	set x2 to item 3 of x1
+	set y1 to item 2 of x1
+	set x1 to item 1 of x1
+end if
+
+if x1 is...
+	radius:
+		if y1 is a list //when radius does not default to mouseLocation()
+			if the number of items in y1 is 2 then set refXY to y1 else set refXY to y1.center
+			set rad to x2
+		else //when radius is using existing mouseLocation()
+			set refXY to mouseLocation()
+			if y1 is a number then set rad to y1
+		end if
+		if y1 is...
+			"tl": return [refXY.x-x2,refXY.y-x2,refXY.x+10,refXY.y+10]
+			"tr": return [refXY.x-10,refXY.y-x2,refXY.x+x2,refXY.y+10]
+			"bl": return [refXY.x-x2,refXY.y-10,refXY.x+10,refXY.y+x2]
+			"br": return [refXY.x-10,refXY.y-10,refXY.x+x2,refXY.y+x2]
+			"t": return [refXY.x-(x2/3),refXY.y-x2,refXY.x+(x2/3),refXY.y-10]
+			"r": return [refXY.x-10,refXY.y-(x2/3),refXY.x+x2,refXY.y+(x2/3)]
+			"b": return [refXY.x-(x2/3),refXY.y-10,refXY.x+(x2/3),refXY.y+x2]
+			"l": return [refXY.x-x2,refXY.y-(x2/3),refXY.x+10,refXY.y+(x2/3)]
+		end if
+		return [refXY.x-rad,refXY.y-rad,refXY.x+rad,refXY.y+rad]
+	empty: set the searchRectangle to []
+	full: set the searchRectangle to []
+	parent: set the searchRectangle to searchRectangle()
+	set:
+		set the searchRectangle to []
+		if y1 is not a list
+			set the searchRectangle to sr(y1)
+		else
+			repeat for each item of y1
+				if it is within 0..1
+					if repeatIndex() is in [1,3] then insert it*s.x after srList else insert it*s.y after srList
+				else
+					insert it after srList
+				end if
+			end repeat
+			set the searchRectangle to srList
+		end if
+	t: return [0,0,s.x,0.35*s.y] //top edge
+	tt:	return [0,0,s.x,0.2*s.y] //top edge tighter
+	ttt: return [0,0,s.x,0.05*s.y] //top edge tightest
+	l: return [0,0,0.35*s.x,s.y] //left edge
+	ll: return [0,0,0.2*s.x,s.y] //left edge tighter
+	lll: return [0,0,0.05*s.x,s.y] //left edge tightest
+	b: return [0,0.65*s.y,s.x,s.y] //bottom edge
+	bb: return [0,0.8*s.y,s.x,s.y] //bottom edge tighter
+	bbb: return [0,0.95*s.y,s.x,s.y] //bottom edge tightest
+	r: return [0.65*s.x,0,s.x,s.y] //right edge
+	rr: return [0.8*s.x,0,s.x,s.y] //right edge tighter
+	rrr: return [0.95*s.x,0,s.x,s.y] //right edge tightest
+	c: return [0.2*s.x,0.2*s.y,0.8*s.x,0.8*s.y] //center
+	cc: return [0.3*s.x,0.3*s.y,0.7*s.x,0.7*s.y] //center tighter
+	ccc: return [0.4*s.x,0.4*s.y,0.6*s.x,0.6*s.y] //center tightest
+	ct: return [0,0,s.x,0.5*s.y] //center to top edge
+	cl: return [0,0,0.5*s.x,s.y] //center to left edge
+	cb: return [0,0.5*s.y,s.x,s.y] //center to bottom edge
+	cr: return [0.5*s.x,0,s.x,s.y] //center to right edge
+	tl: return [0,0,0.5*s.x,0.5*s.y] //top left
+	tll: return [0,0,0.3*s.x,0.3*s.y] //top left tighter
+	tlll: return [0,0,0.1*s.x,0.1*s.y] //top left tightest
+	tr: return [0.5*s.x,0,s.x,0.5*s.y] //top right
+	trr: return [0.7*s.x,0,s.x,0.3*s.y] //top right tighter
+	trrr: return [0.9*s.x,0,s.x,0.1*s.y] //top right tightest
+	br: return [0.5*s.x,0.5*s.y,s.x,s.y] //bottom right
+	brr: return [0.7*s.x,0.7*s.y,s.x,s.y] //bottom right tighter
+	brrr: return [0.9*s.x,0.9*s.y,s.x,s.y] //bottom right tightest
+	bl: return [0,0.5*s.y,0.5*s.x,s.y] //bottom left
+	bll: return [0,0.7*s.y,0.3*s.x,s.y] //bottom left tighter
+	blll: return [0,0.9*s.y,0.1*s.x,s.y] //bottom left tightest
+	m: return [0,0.1*s.y,s.x,0.9*s.y] //middle
+	mm: return [0,0.25*s.y,s.x,0.75*s.y] //middle tighter
+	mmm: return [0,0.35*s.y,s.x,0.65*s.y] //middle tightest
+	tm: return [0.15*s.x,0,0.85*s.x,0.45*s.y] //top middle (top with sides omitted)
+	tm: return [0.2*s.x,0,0.8*s.x,0.4*s.y] //top middle tighter
+	tm: return [0.3*s.x,0,0.7*s.x,0.35*s.y] //top middle tightest
+	bm: return [0.15*s.x,0.55*s.y,0.85*s.x,s.y] //bottom middle (bottom with sides omitted)
+	bmm: return [0.2*s.x,0.6*s.y,0.8*s.x,s.y] //bottom middle tighter
+	bmmm: return [0.3*s.x,0.65*s.y,0.7*s.x,s.y] //bottom middle tightest
+	
+	else: //allows for mix of coordinates and screen percentage as passed in values
+		if x1 is within 0..1 then set x1 to x1*s.x
+		if y1 is within 0..1 then set y1 to y1*s.y
+		if x2 is within 0..1 then set x2 to x2*s.x
+		if y2 is within 0..1 then set y2 to y2*s.y
+		return [x1,y1,x2,y2]
+end if
+
+
+

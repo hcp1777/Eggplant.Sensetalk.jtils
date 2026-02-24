@@ -1,0 +1,44 @@
+# Sureclick will explicitly move to the target location, wait, then click
+# Can help harden the automation when bizarre behavior on server side or webserver is present requiring a more certain click
+#
+#
+#  Parameters:
+#
+#		imageTextXY (required):
+#			- Location/coordinate
+#			- Image path/name
+#			- Text string
+#
+#
+#  Usage Syntax:
+#
+#    	sureclick xy
+#    	sureclick imageName
+#    	sureclick text
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  sureclick.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+params imageTextOrXY
+put !">> sureclick [[notSign]] [[imageTextXY]]"
+
+if imageTextOrXY is a list
+    moveTo imageTextOrXY
+else
+    try
+		if imageInfo(imageTextXY) > "" then set pList to imageTextXY
+	catch e
+		set pList to {text:imageTextXY}
+	end try
+	moveTo imageLocation(pList)
+end if
+wait 1
+click mouseLocation()
+
+
+

@@ -1,0 +1,27 @@
+﻿# Constructs a timestamp for the purposes of logging or filename creation.
+#
+#
+#  Parameter:
+#
+#		withDash: if specified, will include a dash to separate date and time in the timestamp (default: no dashes)
+#
+#
+#  Usage Syntax:
+#
+#		set filename to !"weeklyResult_[[timestamp()]].xlsx"
+#		log "Snapshot of homepage" && timestamp(dash)
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  timestamp.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+params withDash=""
+
+if withDash > "" then return formattedTime("[year][mo][da]-[hr24][mi][se][millisecond]") else return formattedTime("[year][mo][da][hr24][mi][se][millisecond]")
+
+
+
