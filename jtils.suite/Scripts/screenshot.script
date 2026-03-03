@@ -1,0 +1,58 @@
+﻿# Takes screen capture based on specified parameters
+# Should be saved to whatever location is specified in Eggplant application preferences
+#
+# if searchRectangle() is less than full remote screen size and 'diff' is specified then a screenshot will be taken of full SR as well as current SR
+# if 'diff only' is specified, only screenshot of the current SR will be taken if currently set SR is less than full remote screen size
+# if nothing is specified, only screenshot of the full SR will be taken
+#
+#
+# SUITE DESCR:  Jerry's Utilities (Sensetalk Toolkit, Established Since 2020)
+# SUITE  NAME:  jtils
+# SCRIPT NAME:  screenshot.script
+# AUTHOR NAME:  Jerry Park
+#
+
+
+set params to parameterList()
+set pList.name to !"[[timestamp(dash)]] screen_capture"
+set (takeFullSR,takeImg,increment) to empty
+set (conditional,onlyDiff) to false
+set currSR to searchRectangle()
+set fullSR to [0,0]&&&remoteScreenSize()
+if currSR is not fullSR then set diffSR to true else set diffSR to false
+
+repeat for each item of params
+	if it...
+		...matches <digits> or it matches <digits,"of",digits>: set increment to it
+		...is a rectangle: set pList.rectangle to it
+		...contains "only" and if it contains "diff": set onlyDiff to true
+		...contains "diff": set conditional to true
+		else:
+			set pList.name to pList.name && "-" && it
+	end if
+end repeat
+
+if onlyDiff
+	if not diffSR
+		note logWarning,"screenshot","Current searchRectangle() is set to full screen. No 'only diff' screenshot taken!","script"
+		exit script
+	else
+		set (pList.rectangle, pList.name) to (currSR, pList.name & " - rectangle")
+	end if
+else if conditional
+	if diffSR
+		set takeFullSR to true
+		set pList2 to pList
+		set chars 1..18 of plist.name to timestamp(dash)
+		set (pList2.rectangle, pList.rectangle, pList.name) to (fullSR, currSR, pList.name & " - rectangle")
+	end if
+end if
+set takeImg to pList
+if increment > "" then set (pList.name, pList2.name) to (pList.name & "_" & increment, pList2.name & "_" & increment)
+
+set pList to trim(trim(pList,"{"),"}")
+replace every occurrence of ", " in pList with !"[[newline]]       "
+put !">> screenshot.script[[newline]]       [[pList]]"
+
+if takeFullSR > "" then captureScreen pList2
+captureScreen takeImg
