@@ -6,6 +6,7 @@
 #
 #    keys varName
 #    keys "It's a beautiful day."
+#    keys 0.1,tabKey,tabKey,tabKey,wait10,lastName,tabKey,wait13,firstName,tabkey,returnKey
 #    keys 0.1,tabKey,tabKey,tabKey,"wait 0.99",lastName,tabKey,"wait 0.99",firstName,tabkey,returnKey
 #
 #
@@ -19,7 +20,7 @@
 set typeStrings to parameterList()
 set i to item 1 of typeStrings
 
-if i begins with "0." and i is a number
+if i is a number
 	rwi i
 	pull typeStrings
 else
@@ -28,7 +29,12 @@ end if
 
 repeat for each item of typeStrings
 	--log "keys.script:"&&it //debug
-	if it contains "wait" then wait item 2 of split(it,space) else typeText it
+	if it begins with "wait"
+		delete "wait" from it
+		wait trim(it)
+	else
+		typeText it
+	end if
 end repeat
 rwi
 
