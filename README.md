@@ -1,6 +1,6 @@
 # jtils.suite
 
-jtils is a leaner version of Jerry's Full Utility and Custom Sensetalk Tooling Set, Eggplant Toolkit (Established Since 2020)
+jtils is a leaner version of Jerry's Full Utility and Custom Sensetalk Tooling Set, Eggplant Toolkit (Established Since 2020) 
 
 Add jtils.suite as a helper suite to any project to be able to utilize all of the useful tooling of the Sensetalk scripting language to assist with streamlining Eggplant scripting tasks and workflows.
 
